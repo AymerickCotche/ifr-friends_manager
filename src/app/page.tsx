@@ -7,7 +7,7 @@ async function getProfiles(id: number) {
     where: {
       id: id,
     },
-   
+  
   });
   return {
     props: profile,
