@@ -1,0 +1,110 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+  id        String  @default(cuid()) @id
+  name      String  @unique
+  password  String
+  sessions UsersOnSessions[]
+  cards     Card[]
+}
+
+model Session {
+  id       String @default(cuid()) @id
+  name     String @unique
+  date     String
+  status   Boolean
+  cards    Card[]
+  users    UsersOnSessions[]
+}
+
+model Number {
+  id    String           @default(cuid())  @id
+  value String           @unique
+  drawn Boolean          @default(false)
+  cards NumbersOnCards[]
+  draws NumbersOnDraws[]
+}
+
+model Card {
+  id        String           @default(cuid()) @id
+  name      String           @unique
+  session   Session          @relation(fields: [sessionId], references: [id])
+  sessionId String
+  user   User          @relation(fields: [userId], references: [id])
+  userId String
+  numbers   NumbersOnCards[]
+}
+
+model Draw {
+  id      String           @default(cuid()) @id
+  name    String           @unique
+  numbers NumbersOnDraws[]
+}
+
+model UsersOnSessions {
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+  session   Session   @relation(fields: [sessionId], references: [id])
+  sessionId String
+
+  @@id([userId, sessionId])
+}
+
+model NumbersOnCards {
+  card     Card     @relation(fields: [cardId], references: [id])
+  cardId   String
+  number   Number   @relation(fields: [numberValue], references: [value])
+  numberValue String
+
+  @@id([cardId, numberValue])
+}
+
+model NumbersOnDraws {
+  draw     Draw     @relation(fields: [drawId], references: [id])
+  drawId   String
+  number   Number   @relation(fields: [numberValue], references: [value])
+  numberValue String
+
+  @@id([drawId, numberValue])
+}
+
+model Profile {
+  id      Int      @id @default(autoincrement())
+  userName     String
+  firstName String
+  lastName String
+  password   String
+  senders FriendsRequests[] @relation("sender")
+  receivers FriendsRequests[] @relation("receiver")
+  profiles1 Relationship[] @relation("profile1")
+  profiles2 Relationship[] @relation("profile2")
+}
+
+model FriendsRequests {
+  sender     Profile     @relation(fields: [senderId], references: [id], name : "sender")
+  senderId   Int
+  receiver     Profile     @relation(fields: [receiverId], references: [id], name: "receiver")
+  receiverId   Int
+  
+
+  @@id([senderId, receiverId])
+}
+
+model Relationship {
+  profile1     Profile     @relation(fields: [profile1Id], references: [id], name : "profile1")
+  profile1Id   Int
+  profile2     Profile     @relation(fields: [profile2Id], references: [id], name: "profile2")
+  profile2Id   Int
+
+  @@id([profile1Id, profile2Id])
+}
