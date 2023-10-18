@@ -44,7 +44,21 @@ export async function POST(req: Request) {
         },
         profiles1: {
           where: {
-            profile1Id: id
+            profile1Id: id,
+          },
+          include: {
+            profile2: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true
+              }
+            }
+          }
+        },
+        profiles2: {
+          where: {
+            profile2Id: id,
           },
           include: {
             profile1: {
