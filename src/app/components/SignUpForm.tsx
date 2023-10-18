@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState, ChangeEvent, FormEvent } from 'react';
+import React, { useState, ChangeEvent, FormEvent, MouseEventHandler } from 'react';
+import Modale from './Modale';
 
 interface Profile {
   userName: string;
@@ -9,9 +10,7 @@ interface Profile {
   password: string;
 }
 
-type isLoading = boolean
-
-const SignUpForm = () => {
+const SignUpForm = ({setIsRegister, isRegister}: {setIsRegister: Function, isRegister: Boolean}) => {
 
   const [user, setUser] = useState<Profile>({
     userName: '',
@@ -20,8 +19,8 @@ const SignUpForm = () => {
     password: '',
   });
 
-  const [isLoading, setIsLoading] = useState<isLoading>(false);
-
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -39,21 +38,23 @@ const SignUpForm = () => {
       method: 'POST',
       body: JSON.stringify(user)
     })
+
     setIsLoading(false)
 
     if (profile.status === 200) {
-      console.log('profile créé')
+      setShowModal(true)
     } else {
       console.log('Echec de la création du profile')
     }
     // console.log(profile.status)
     // console.log(await profile.json())
-
-
-
   };
 
-  // Rendu du composant
+  const handleClickSwitch = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    setIsRegister(!isRegister)
+  }
+
   return (
     <form className="max-w-md mx-auto p-4 bg-gray-100" onSubmit={handleSubmit}>
       <label className="block mb-2">
@@ -96,9 +97,16 @@ const SignUpForm = () => {
           onChange={handleChange}
         />
       </label>
-      <button className="bg-blue-500 text-white p-2" type="submit" disabled={isLoading}>
-        S&apos;inscrire
-      </button>
+      <div className="flex gap-2 items-center mt-2">
+        <button className="bg-blue-500 text-white p-2" type="submit" disabled={isLoading}>
+          S&apos;inscrire
+        </button>
+        <p className="underline hover:cursor-pointer hover:text-blue-500 duration-200" onClick={handleClickSwitch}>Pas de compte ? Inscrivez-vous</p>
+      </div>
+
+      {showModal &&
+        <Modale setShowModal={setShowModal} user={user}/>
+      }
     </form>
   );
 };
