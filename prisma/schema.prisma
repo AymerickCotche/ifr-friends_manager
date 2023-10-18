@@ -80,7 +80,7 @@ model NumbersOnDraws {
 
 model Profile {
   id      Int      @id @default(autoincrement())
-  userName     String
+  userName     String @unique
   firstName String
   lastName String
   password   String
@@ -95,8 +95,8 @@ model FriendsRequests {
   senderId   Int
   receiver     Profile     @relation(fields: [receiverId], references: [id], name: "receiver")
   receiverId   Int
-  
-
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   @@id([senderId, receiverId])
 }
 
@@ -105,6 +105,7 @@ model Relationship {
   profile1Id   Int
   profile2     Profile     @relation(fields: [profile2Id], references: [id], name: "profile2")
   profile2Id   Int
-
+  createdAt     DateTime  @default(now()) @map(name: "created_at")
+  updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   @@id([profile1Id, profile2Id])
 }
